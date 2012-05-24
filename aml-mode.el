@@ -22,6 +22,11 @@
 
 ;; This is a major mode for working with AML code.
 
+;; Installation instructions: Place the file aml-mode.el somewhere on your
+;; load-path.  Then, add (require 'aml-mode) to your .emacs.  Finally, it may
+;; be a good idea to add aml-mode to your auto-mode-alist. For example, you
+;; can write (add-to-list 'auto-mode-alist '("\\.aml$" . aml-mode)) .
+
 ;;; Code:
 
 
