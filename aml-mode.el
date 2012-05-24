@@ -58,15 +58,20 @@
   :type 'hook
   :group 'aml)
 
-;;; Blindly stolen from haskell-simple-indent
+;;; Derived from haskell-simple-indent
 (defun aml-indent ()
   "Space out to under next visible indent point.
-Indent points are positions of non-whitespace following whitespace in
-lines preceeding point.  A position is visible if it is to the left of
-the first non-whitespace of every nonblank line between the position and
-the current line.  If there is no visible indent point beyond the current
-column, `tab-to-tab-stop' is done instead."
+Indent points are positions of non-whitespace following
+whitespace in lines preceeding point and the current tab width
+past the first such position.  A position is visible if it is to
+the left of the first non-whitespace of every nonblank line
+between the position and the current line.  If there is no
+visible indent point beyond the current column, indentation
+resets to the previous line."
   (interactive)
+  (when (or (not (integerp aml-tab-width))
+            (< aml-tab-width 1))
+    (error "aml-tab-width must be at least 1. Current value: %s" aml-tab-width))
   (let* ((start-column (current-column))
          (invisible-from nil)		; `nil' means infinity here
          (indent
@@ -77,32 +82,39 @@ column, `tab-to-tab-stop' is done instead."
                 (forward-line -1)
                 (if (not (looking-at "[ \t]*\n"))
                     (let ((this-indentation (current-indentation)))
-                      (if (or (not invisible-from)
-                              (< this-indentation invisible-from))
-                          (if (> this-indentation start-column)
-                              (setq invisible-from this-indentation)
-                            (let ((end (line-beginning-position 2)))
-                              (move-to-column start-column)
-                              ;; Is start-column inside a tab on this line?
-                              (if (> (current-column) start-column)
-                                  (backward-char 1))
-                              (or (looking-at "[ \t]")
-                                  (skip-chars-forward "^ \t" end))
-                              (skip-chars-forward " \t" end)
-                              (let ((col (current-column)))
-                                (throw 'aml-simple-indent-break
-                                       (if (or (= (point) end)
-                                               (and invisible-from
-                                                    (> col invisible-from)))
-                                           invisible-from
-                                         col)))))))))))))
+                      ; First indent to previous non-empty line's start column
+                      (when (< start-column this-indentation)
+                        (throw 'aml-simple-indent-break this-indentation))
+                      ; Then indent to the tab-width past that
+                      (when (< start-column (+ this-indentation aml-tab-width))
+                        (throw 'aml-simple-indent-break (+ this-indentation aml-tab-width)))
+                      ; Now take indentation points one at a time
+                      (when (or (not invisible-from)
+                                (< this-indentation invisible-from))
+                        (if (> this-indentation start-column)
+                          (setq invisible-from this-indentation)
+                          (let ((end (line-beginning-position 2)))
+                            (move-to-column start-column)
+                            ;; Is start-column inside a tab on this line?
+                            (if (> (current-column) start-column)
+                                (backward-char 1))
+                            (or (looking-at "[ \t]")
+                                (skip-chars-forward "^ \t" end))
+                            (skip-chars-forward " \t" end)
+                            (let ((col (current-column)))
+                              (throw 'aml-simple-indent-break
+                                     (if (or (= (point) end)
+                                             (and invisible-from
+                                                  (> col invisible-from)))
+                                       invisible-from
+                                       col)))))))))))))
     (if indent
 	(let ((opoint (point-marker)))
 	  (indent-line-to indent)
 	  (if (> opoint (point))
 	      (goto-char opoint))
 	  (set-marker opoint nil))
-      (tab-to-tab-stop))))
+      (indent-line-to 0))))
 
 
 
