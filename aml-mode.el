@@ -118,7 +118,7 @@ resets to the previous line."
 
 
 
-(define-derived-mode aml-mode fundamental-mode "Actulus Modeling Language"
+(define-derived-mode aml-mode fundamental-mode "AML"
   "AML Mode is a mode for writing AML products and computations."
   :group 'aml
 
