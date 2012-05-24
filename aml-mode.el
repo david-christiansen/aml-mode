@@ -58,11 +58,6 @@
   :type 'integer
   :group 'aml)
 
-(defcustom aml-mode-hook nil
-  "Hook to run when entering AML mode"
-  :type 'hook
-  :group 'aml)
-
 ;;; Derived from haskell-simple-indent
 (defun aml-indent ()
   "Space out to under next visible indent point.
@@ -144,9 +139,6 @@ resets to the previous line."
   (modify-syntax-entry ?\n ">" aml-mode-syntax-table)
 
   (set (make-local-variable 'indent-line-function) 'aml-indent)
-
-  (when aml-mode-hook
-    (funcall aml-mode-hook))
 )
 
 (provide 'aml-mode)
