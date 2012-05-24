@@ -132,11 +132,22 @@ resets to the previous line."
   (setq comment-start "(*")
   (setq comment-end " *)")
 
-  (modify-syntax-entry ?\( ". 1bn" aml-mode-syntax-table)
+  ;; Match comments with each other
+  (modify-syntax-entry ?\( "() 1bn" aml-mode-syntax-table)
   (modify-syntax-entry ?\* ". 23bn" aml-mode-syntax-table)
-  (modify-syntax-entry ?\) ". 4bn" aml-mode-syntax-table)
+  (modify-syntax-entry ?\) ")( 4bn" aml-mode-syntax-table)
   (modify-syntax-entry ?\/ ". 12" aml-mode-syntax-table)
   (modify-syntax-entry ?\n ">" aml-mode-syntax-table)
+
+  ;; Match other kinds of parens
+  (modify-syntax-entry ?\[ "(]" aml-mode-syntax-table)
+  (modify-syntax-entry ?\] ")[" aml-mode-syntax-table)
+  (modify-syntax-entry ?\{ "(}" aml-mode-syntax-table)
+  (modify-syntax-entry ?\} "){" aml-mode-syntax-table)
+
+  ;; Strings
+  (modify-syntax-entry ?\" "\"" aml-mode-syntax-table)
+  (modify-syntax-entry ?\\ "\\" aml-mode-syntax-table)
 
   (set (make-local-variable 'indent-line-function) 'aml-indent)
 )
