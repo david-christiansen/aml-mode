@@ -85,8 +85,13 @@ resets to the previous line."
                       ; First indent to previous non-empty line's start column
                       (when (< start-column this-indentation)
                         (throw 'aml-simple-indent-break this-indentation))
-                      ; Then indent to the tab-width past that
-                      (when (< start-column (+ this-indentation aml-tab-width))
+                      ; Then indent to the tab-width past that if the previous line
+                      ; ends with '=' or 'where'
+                      (when (and (< start-column
+                                    (+ this-indentation aml-tab-width))
+                                 (save-excursion
+                                   (beginning-of-line)
+                                   (looking-at ".*[ \t]*\\(=\\|[ \t]where\\)[ \t]*$")))
                         (throw 'aml-simple-indent-break (+ this-indentation aml-tab-width)))
                       ; Now take indentation points one at a time
                       (when (or (not invisible-from)
@@ -115,7 +120,6 @@ resets to the previous line."
 	      (goto-char opoint))
 	  (set-marker opoint nil))
       (indent-line-to 0))))
-
 
 
 (define-derived-mode aml-mode fundamental-mode "AML"
